@@ -27,7 +27,7 @@ class hipserver:
     def createTable(self):
         # here we save the aritst related to a song
         self.c.execute('''CREATE TABLE IF NOT EXISTS songs 
-                          (id text UNIQUE, artists text, n integer)''')
+                          (id text UNIQUE, artistid text, artists text, n integer)''')
         # here we store all artists whos discogarphie we already have
         self.c.execute('''CREATE TABLE IF NOT EXISTS artist 
                           (id text UNIQUE, name text)''')
@@ -36,9 +36,23 @@ class hipserver:
                           (songid text UNIQUE, artistid text)''')
         self.db.commit()
     
-    def makeHop(self):
+    def makeHops(self, seed, n=2):
         # we make a hop
         # that means, for each artist we fetch the whole discographie
+        arts = []
+        # here we keep all the ids we already fetched in one of the hops
+        oldarts = []
+        i = 0
+        if len(arts) == 0:
+            arts.append(seed)
+        while i < n:
+            # store all artists of this round, to make a list
+            tmpArts = []
+            for a in arts:
+                disc = self.getDiscoGraphie(a)
+                for sonf in disc:
+                    # fetch all song infos, to get o the next round of artists
+            i += 1
         arts = self.getAllArtists()
         for a in arts:
             self.getDiscoGraphie(a)
