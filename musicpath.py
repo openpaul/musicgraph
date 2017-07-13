@@ -88,6 +88,9 @@ class hipserver:
         return(True)
     
     def loadDiscographieFromDB(self, theID):
+        # skipp the unknown 
+        if theID == '125ec42a-7229-4250-afc5-e057484327fe'
+            return()
         if self.v:
             print("Trying to load discographie from DB:    ", theID)
         songs = None
@@ -100,6 +103,9 @@ class hipserver:
         return(songs)
     
     def loadDiscographieFromServer(self, theID, turn = 1, threshold = 5):
+        # skipp the unknown 
+        if theID == '125ec42a-7229-4250-afc5-e057484327fe'
+            return()
         if self.v:
             print("Trying to load discographie from server:", theID)
         respond = []
@@ -269,7 +275,7 @@ g.simplify(combine_edges={"weight": "sum"})
 
 
 
-g.save("HipHopGraph-2-Hops.graphml", format="graphml")
+g.save("HipHopGraph-4-Hops.graphml", format="graphml")
 
 
 db.c.close()
