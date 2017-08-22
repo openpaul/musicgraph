@@ -1,3 +1,14 @@
+# 
+# Musigraph
+# This script can create a graph file based on the ttps://musicbrainz.org/
+# database. 
+# launch via 
+# 
+# python3 muicgraph.py -i [artist id from musicbrainz] -n [hops] -db [db name]
+# 
+# licensed under the GPL v2 or v3
+# copyright Paul Saary
+
 import json
 import requests
 import pprint
@@ -10,39 +21,29 @@ from time import sleep
 import os, pickle    
 
 
-# create DB if not existst
-
 class hipserver:
     def __init__(self, dbname = "db.db", verbose = True):
+        # init the class
         self.v = verbose
-        musicbrainzngs.set_useragent("testapp", version = '0')
+        # set a useragent, as this is required
+        musicbrainzngs.set_useragent("musicgraph", version = '1')
+        # start the database for local chaching
         self.startDB(dbname)
         
     def startDB(self, dbname):
+        # connect to the sqlite db
         self.db  = sqlite3.connect(dbname)
         self.c   = self.db.cursor()
+        # create all tables that we need
         self.createTable()
         
     
     def createTable(self):
-        # here we save the aritst related to a song
+        # a single table to hold the information
         self.c.execute('''CREATE TABLE IF NOT EXISTS songs 
                           (id text UNIQUE, artistid text, artists text, n integer)''')
-        # here we store all artists whos discogarphie we already have
-        self.c.execute('''CREATE TABLE IF NOT EXISTS artist 
-                          (id text UNIQUE, name text)''')
-        # in this table we store all discographies we already have
-        self.c.execute('''CREATE TABLE IF NOT EXISTS discog 
-                          (songid text UNIQUE, artistid text)''')
         self.db.commit()
 
-    def copyTable(self):
-        # get all discos 
-        self.c.execute('SELECT * FROM `discog`')
-        disc = self.c.fetchall()
-        for di in disc:
-            self.c.execute("UPDATE `songs` SET `artistid`=? WHERE `id`=?", (di[1], di[0]))
-        self.db.commit()
 
     def makeHops(self, seed, n=2):
         # we make a hop
@@ -101,18 +102,7 @@ class hipserver:
         self.vertices = artists
         return(True)
     
-    '''def getArtists(self, songID):
-        # check if we have this artits stored
-        artists = self.loadRelatedArtistsFromDB(songID)
-        if artists != None:
-            # if not load from server
-            resp = self.loadRelatedArtistsFromServer(songID)
-        else:
-            songid = artists[0]
-            artists = pickle.loads(artists[1])
-        
-        return(artists)
-    '''
+
     def seed(self, theID):
         self.getDiscoGraphie(theID)
         return(True)
@@ -140,7 +130,7 @@ class hipserver:
         return((songID, artistID, a, n))
     
     def loadDiscographieFromDB(self, theID):
-        # skipp the unknown 
+        # skipp the unknown, as this comes up more frequently 
         if theID == '125ec42a-7229-4250-afc5-e057484327fe':
             return()
         if self.v:
@@ -301,7 +291,8 @@ db = hipserver("germanHipHop")
 nHops = 3
 dendemann = 'e8533fd3-4e66-4ad5-8fe5-12a916f9c4a1'
 ag = '1cef14f9-b674-4f89-afc2-637652e38484'
-db.makeHops(ag, nHops)
+diea = 'f2fb0ff0-5679-42ec-a55c-15109ce6e320'
+db.makeHops(diea, nHops)
 
 # now that we have the data we can build a graph if we want
 g = Graph()
@@ -322,7 +313,7 @@ g.simplify(combine_edges={"weight": "sum"})
 
 
 
-g.save("HipHopGraph-Antilopengang-3-Hops.graphml", format="graphml")
+g.save("HipHopGraph-arzte-3-Hops.graphml", format="graphml")
 
 
 db.c.close()
