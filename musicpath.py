@@ -9,6 +9,7 @@
 # licensed under the GPL v2 or v3
 # copyright Paul Saary
 
+import argparse
 import json
 import requests
 import pprint
@@ -282,41 +283,55 @@ class hipserver:
                 edges.append(ed)
         return(edges)
         
-# start a new DB server
-db = hipserver("germanHipHop")
-# seed with a single artist from  https://musicbrainz.org/
-# we seed with Fatoni
-#idb.seed('5b8af525-4932-4cb1-a08d-afe28d9495d8')
-# now make hops:
-nHops = 3
-dendemann = 'e8533fd3-4e66-4ad5-8fe5-12a916f9c4a1'
-ag = '1cef14f9-b674-4f89-afc2-637652e38484'
-diea = 'f2fb0ff0-5679-42ec-a55c-15109ce6e320'
-db.makeHops(diea, nHops)
-
-# now that we have the data we can build a graph if we want
-g = Graph()
-
-# make vertices
-for key in db.vertices :
-    g.add_vertex(key, label = db.vertices[key] )
-
-# get the edges:
-g.add_edges(db.edges) 
-summary(g)
-
-# combine by weight
-g.es["weight"] = 1
-g.simplify(combine_edges={"weight": "sum"})
-#layout = g.layout("kk")
-#plot(g, layout = layout)
 
 
 
-g.save("HipHopGraph-arzte-3-Hops.graphml", format="graphml")
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("id" , type=str,
+                            help="The ID of the artist, as defined by musicbrainz")
+
+    parser.add_argument("output" , type=str,
+                            help="output file")
+
+    parser.add_argument("-c","--count" , type=int,
+            help="number of hops, default: 2", default = 2)
+
+    parser.add_argument("-d","--db" , type=str,
+            help="Name of the db file", default = "cache.sqlite")
+
+    parser.add_argument("-v", "--verbose", type = bool, 
+                            help="increase output verbosity", default = False)
+    args = parser.parse_args()
+
+    # start a new DB server
+    db = hipserver(args.db, args.verbose)
+    # now make hops:
+    db.makeHops(args.id, args.count)
+
+    # now that we have the data we can build a graph if we want
+    g = Graph()
+
+    # make vertices
+    for key in db.vertices :
+        g.add_vertex(key, label = db.vertices[key] )
+
+    # get the edges:
+    g.add_edges(db.edges) 
+    summary(g)
+
+    # combine by weight
+    g.es["weight"] = 1
+    g.simplify(combine_edges={"weight": "sum"})
+    #layout = g.layout("kk")
+    #plot(g, layout = layout)
 
 
-db.c.close()
+
+    g.save(args.output + ".graphml", format="graphml")
 
 
+    db.c.close()
 
+
+main()
