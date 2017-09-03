@@ -11,7 +11,7 @@ This is is the first required argument for the script.
 musicpath.py [-h] [-c COUNT] [-d DB] [-v VERBOSE] id output
 ```
 
-This will procue a file called output.graphml which can be loaded using gephi or another graph visualisation softare.
+This will produce a file called output.graphml which can be loaded using gephi or another graph visualization software.
 
 ## Bugs
 The code is not perfect and grew over time. If you find a bug, I would be very pleased to merge your pull request.
