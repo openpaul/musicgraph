@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 # 
 # Musigraph
 # This script can create a graph file based on the ttps://musicbrainz.org/
